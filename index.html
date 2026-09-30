@@ -59,7 +59,7 @@
         <span class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wide">ADEGA - VINHOS IBIRAPUERA</span>
       </div>
       <div class="flex items-center justify-between sm:justify-end gap-2 text-xs font-bold w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-slate-100 flex-wrap sm:flex-nowrap">
-        <span id="badge-seletora" class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold">SELETORA: REMOTO (ESP32)</span>
+        <span id="badge-seletora" class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold">SELETORA: AUTOMÁTICO</span>
         <span id="badge-sistema" class="bg-rose-600 text-white px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[10px]">
           <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> DESCONECTADO
         </span>
@@ -89,7 +89,7 @@
             </div>
 
             <div class="space-y-3 w-full flex-1">
-              <!-- CONTROLE DO SETPOINT INTERATIVO GRAVADO NO FIELD 3 -->
+              <!-- CONTROLE DO SETPOINT INTERATIVO (FIELD 3) -->
               <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-between">
                 <div>
                   <p class="text-[10px] font-black text-blue-900 uppercase">Setpoint da Adega (Field 3)</p>
@@ -135,7 +135,7 @@
             </h3>
             <div id="card-modo-operacao" class="p-3 rounded-lg border bg-slate-50 text-xs flex justify-between items-center font-bold">
               <span>Modo de Controle:</span>
-              <span id="val-modo-operacao" class="text-blue-600">REMOTO (ESP32)</span>
+              <span id="val-modo-operacao" class="text-blue-600">REMOTO</span>
             </div>
           </div>
         </div>
@@ -278,9 +278,7 @@
     let tempOffset = parseFloat(localStorage.getItem('tempOffset_adega')) || 0.0;
     let tempoDegeloMinutos = parseInt(localStorage.getItem('tempoDegeloMinutos_adega')) || 5;
 
-    // Carrega Setpoint do LocalStorage para evitar resete visual ao recarregar a página
-    let setpointAtual = parseFloat(localStorage.getItem('setpoint_adega')) || 12.0;
-
+    let setpointAtual = 12.0;
     let timestampInicioForaFaixa = null;
     let segundosForaDaFaixa = 0;
 
@@ -297,7 +295,6 @@
     document.getElementById('input-write-api-key').value = writeApiKey;
     document.getElementById('input-temp-offset').value = tempOffset;
     document.getElementById('input-tempo-degelo').value = tempoDegeloMinutos;
-    document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
 
     let chartTemp = null;
     let chartPeriodo = null;
@@ -331,12 +328,11 @@
 
     function ajustarSetpoint(delta) {
       setpointAtual = Math.min(25, Math.max(5, setpointAtual + delta));
-      localStorage.setItem('setpoint_adega', setpointAtual); // Salva no navegador
       document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
 
-      // Envia a alteração do Setpoint diretamente para o FIELD 3 do ThingSpeak
+      // Envia alteração para o Field 3 do ThingSpeak
       fetch(`https://api.thingspeak.com/update?api_key=${writeApiKey}&field3=${setpointAtual.toFixed(1)}`)
-        .then(() => console.log('Setpoint sincronizado no Field 3 do ThingSpeak'))
+        .then(() => console.log('Setpoint atualizado no ThingSpeak (Field 3)'))
         .catch(err => console.error('Erro ao atualizar Setpoint:', err));
     }
 
@@ -481,21 +477,21 @@
             document.getElementById('tela-bloqueio').classList.add('hidden');
           }
 
-          // 2. SELETORA LOCAL / REMOTO (FIELD 6)
-          const isModoLocal = (String(ultimoFeed.field6) === "1" || String(ultimoFeed.field6) === "true");
+          // 2. SELETORA LOCAL / REMOTO (FIELD 6: 1 = Automático/Remoto, 0 = Local)
+          const isModoAuto = (String(ultimoFeed.field6) === "1" || String(ultimoFeed.field6) === "true");
           const badgeSel = document.getElementById('badge-seletora');
           const txtModo = document.getElementById('val-modo-operacao');
 
-          if (isModoLocal) {
-            badgeSel.innerText = "SELETORA: LOCAL / MANUAL";
-            badgeSel.className = "bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg text-[10px] font-extrabold animate-pulse";
-            txtModo.innerText = "LOCAL / PAINEL FÍSICO";
-            txtModo.className = "text-amber-600 font-black";
-          } else {
-            badgeSel.innerText = "SELETORA: REMOTO (ESP32)";
+          if (isModoAuto) {
+            badgeSel.innerText = "SELETORA: AUTOMÁTICO";
             badgeSel.className = "bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold";
-            txtModo.innerText = "REMOTO (ESP32)";
+            txtModo.innerText = "REMOTO";
             txtModo.className = "text-blue-600 font-black";
+          } else {
+            badgeSel.innerText = "SELETORA: LOCAL";
+            badgeSel.className = "bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg text-[10px] font-extrabold animate-pulse";
+            txtModo.innerText = "LOCAL";
+            txtModo.className = "text-amber-600 font-black";
           }
 
           // 3. SETPOINT TEMPERATURA (FIELD 3)
@@ -503,7 +499,6 @@
             let sp = parseFloat(ultimoFeed.field3);
             if (!isNaN(sp) && sp > 0) {
               setpointAtual = sp;
-              localStorage.setItem('setpoint_adega', setpointAtual);
               document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
             }
           }
