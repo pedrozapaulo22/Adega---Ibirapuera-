@@ -92,8 +92,8 @@
               <!-- CONTROLE DO SETPOINT INTERATIVO (FIELD 3) -->
               <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-between">
                 <div>
-                  <p class="text-[10px] font-black text-blue-900 uppercase">Setpoint da Adega (Field 3)</p>
-                  <p id="display-setpoint" class="text-lg font-black text-blue-700">12.0 °C</p>
+                  <p class="text-[10px] font-black text-blue-900 uppercase">Setpoint da Adega</p>
+                  <p id="display-setpoint" class="text-lg font-black text-blue-700">-- °C</p>
                 </div>
                 <div class="flex items-center gap-1.5">
                   <button onclick="ajustarSetpoint(-0.5)" class="w-8 h-8 bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg font-black text-base shadow-sm active:scale-95 transition-all">-</button>
@@ -119,19 +119,19 @@
         <div class="col-span-12 lg:col-span-6 space-y-4">
           <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
             <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase">REDE ELÉTRICA (FIELD 2)</span>
+              <span class="text-[9px] font-bold text-slate-400 uppercase">REDE ELÉTRICA</span>
               <div id="status-rede" class="my-1 sm:my-2 font-black text-xs text-slate-400">DESCONHECIDO</div>
             </div>
 
             <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase leading-tight">FORA DA FAIXA (FIELD 4)</span>
+              <span class="text-[9px] font-bold text-slate-400 uppercase leading-tight">FORA DA FAIXA</span>
               <div id="val-fora-faixa" class="my-1 font-black text-[11px] sm:text-xs text-slate-800">00h 00m 00s</div>
             </div>
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
             <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-              <span class="text-blue-600 font-black">:</span> SELETORA LOCAL / REMOTO (FIELD 6)
+              <span class="text-blue-600 font-black">:</span> SELETORA LOCAL / REMOTO
             </h3>
             <div id="card-modo-operacao" class="p-3 rounded-lg border bg-slate-50 text-xs flex justify-between items-center font-bold">
               <span>Modo de Controle:</span>
@@ -278,7 +278,11 @@
     let tempOffset = parseFloat(localStorage.getItem('tempOffset_adega')) || 0.0;
     let tempoDegeloMinutos = parseInt(localStorage.getItem('tempoDegeloMinutos_adega')) || 5;
 
-    let setpointAtual = 12.0;
+    // Setpoint com backup no navegador
+    let setpointAtual = parseFloat(localStorage.getItem('setpoint_adega')) || 12.0;
+    let alterandoSetpointLocalmente = false; // Trava para impedir sobrescrita enquanto grava
+    let timerTravaSetpoint = null;
+
     let timestampInicioForaFaixa = null;
     let segundosForaDaFaixa = 0;
 
@@ -295,6 +299,7 @@
     document.getElementById('input-write-api-key').value = writeApiKey;
     document.getElementById('input-temp-offset').value = tempOffset;
     document.getElementById('input-tempo-degelo').value = tempoDegeloMinutos;
+    document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
 
     let chartTemp = null;
     let chartPeriodo = null;
@@ -326,14 +331,23 @@
       document.getElementById('lbl-lim-degelo').innerText = `${hor}h ${min}m`;
     }
 
+    // AJUSTE DE SETPOINT SINCRONIZADO
     function ajustarSetpoint(delta) {
       setpointAtual = Math.min(25, Math.max(5, setpointAtual + delta));
+      localStorage.setItem('setpoint_adega', setpointAtual);
       document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
 
-      // Envia alteração para o Field 3 do ThingSpeak
+      // Ativa trava de 10 segundos para não ser sobrescrito por consultas do ThingSpeak enquanto o servidor processa
+      alterandoSetpointLocalmente = true;
+      if (timerTravaSetpoint) clearTimeout(timerTravaSetpoint);
+      timerTravaSetpoint = setTimeout(() => {
+        alterandoSetpointLocalmente = false;
+      }, 10000);
+
+      // Transmite a alteração para o Field 3 do ThingSpeak
       fetch(`https://api.thingspeak.com/update?api_key=${writeApiKey}&field3=${setpointAtual.toFixed(1)}`)
-        .then(() => console.log('Setpoint atualizado no ThingSpeak (Field 3)'))
-        .catch(err => console.error('Erro ao atualizar Setpoint:', err));
+        .then(() => console.log('Setpoint gravado com sucesso no Field 3'))
+        .catch(err => console.error('Erro ao salvar Setpoint:', err));
     }
 
     function salvarConfiguracao() {
@@ -494,11 +508,12 @@
             txtModo.className = "text-amber-600 font-black";
           }
 
-          // 3. SETPOINT TEMPERATURA (FIELD 3)
-          if (ultimoFeed.field3) {
+          // 3. SETPOINT TEMPERATURA (FIELD 3) - ATUALIZAÇÃO SINCRONIZADA
+          if (!alterandoSetpointLocalmente && ultimoFeed.field3) {
             let sp = parseFloat(ultimoFeed.field3);
             if (!isNaN(sp) && sp > 0) {
               setpointAtual = sp;
+              localStorage.setItem('setpoint_adega', setpointAtual);
               document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
             }
           }
