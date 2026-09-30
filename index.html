@@ -10,13 +10,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
     .sidebar { background-color: #0b192c; }
-    .gauge-wrapper { width: 120px; height: 120px; position: relative; display: flex; align-items: center; justify-content: center; }
-    @media (min-width: 640px) { .gauge-wrapper { width: 140px; height: 140px; } }
+    .gauge-wrapper { width: 140px; height: 140px; position: relative; display: flex; align-items: center; justify-content: center; }
+    @media (min-width: 640px) { .gauge-wrapper { width: 160px; height: 160px; } }
     .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-    .gauge-bg { fill: none; stroke: #e2e8f0; stroke-width: 8; }
-    .gauge-fill { fill: none; stroke: #2563eb; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 251.2; stroke-dashoffset: 251.2; transition: all 0.5s ease; }
+    .gauge-bg { fill: none; stroke: #f1f5f9; stroke-width: 10; }
+    .gauge-fill { fill: none; stroke: #2563eb; stroke-width: 10; stroke-linecap: round; stroke-dasharray: 251.2; stroke-dashoffset: 251.2; transition: all 0.5s ease; }
     .gauge-fill-error { stroke: #e11d48 !important; }
     .gauge-fill-degelo { stroke: #f59e0b !important; }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom, 12px); }
@@ -52,7 +52,7 @@
   <main class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 pb-28 md:pb-6">
     
     <!-- CABEÇALHO SUPERIOR -->
-    <header class="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-200/80 shadow-sm gap-2">
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-200/80 shadow-sm gap-2">
       <div class="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
         <h1 class="font-black text-slate-800 text-sm sm:text-base">REI DO GELO</h1>
         <span class="text-slate-300 hidden sm:inline">|</span>
@@ -69,103 +69,201 @@
 
     <!-- ABA 1: DASHBOARD -->
     <div id="aba-dashboard" class="space-y-4 sm:space-y-5">
-      <div class="grid grid-cols-12 gap-4 sm:gap-5">
+      
+      <!-- CARD DE TEMPERATURA ATUAL + PARÂMETROS -->
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+          <span class="text-blue-600 font-black">❄</span> TEMPERATURA ATUAL
+        </h3>
         
-        <!-- TEMPERATURA ATUAL + CONTROLE DE SETPOINT COM BOTÃO CONFIRMAR -->
-        <div class="col-span-12 lg:col-span-6 bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-sm">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-1">
-            <span class="text-blue-600 font-black">:</span> TEMPERATURA ATUAL
-          </h3>
-          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div class="gauge-wrapper shrink-0">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          
+          <!-- GAUGE DE TEMPERATURA -->
+          <div class="md:col-span-5 flex flex-col items-center justify-center p-2 border-b md:border-b-0 md:border-r border-slate-100 pb-4 md:pb-0">
+            <div class="gauge-wrapper my-2">
               <svg class="gauge-svg" viewBox="0 0 100 100">
                 <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
                 <circle id="gauge-circle" class="gauge-fill gauge-fill-error" cx="50" cy="50" r="40" style="stroke-dashoffset: 0;"></circle>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-1">
-                <span id="val-temperatura" class="text-xl sm:text-2xl font-black text-slate-800 leading-none tracking-tight">-</span>
-                <span id="badge-sensor-status" class="bg-rose-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1 animate-pulse">SEM SINAL</span>
-              </div>
-            </div>
-
-            <div class="space-y-3 w-full flex-1">
-              <!-- CONTROLE DO SETPOINT -->
-              <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-2.5">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-black text-blue-900 uppercase">Setpoint da Adega</p>
-                    <p id="display-setpoint" class="text-lg font-black text-blue-700">-- °C</p>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <button onclick="ajustarSetpointLocal(-0.5)" class="w-9 h-9 bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg font-black text-lg shadow-sm active:scale-95 transition-all flex items-center justify-center">-</button>
-                    <button onclick="ajustarSetpointLocal(0.5)" class="w-9 h-9 bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg font-black text-lg shadow-sm active:scale-95 transition-all flex items-center justify-center">+</button>
-                  </div>
-                </div>
-
-                <!-- BOTÃO DE CONFIRMAÇÃO FIXO -->
-                <button id="btn-confirmar-setpoint" onclick="confirmarEnviarSetpoint()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-lg shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                  <span>CONFIRMAR SETPOINT</span>
-                </button>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 text-[10px]">
-                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                  <span class="text-slate-400 font-bold block">Faixa Ideal</span>
-                  <span class="font-extrabold text-slate-800">10.0 °C a 16.0 °C</span>
-                </div>
-                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                  <span class="text-slate-400 font-bold block">Tolerância Degelo</span>
-                  <span class="font-extrabold text-slate-800"><span id="lbl-tol-degelo">5</span> min</span>
-                </div>
+                <span id="val-temperatura" class="text-2xl sm:text-3xl font-black text-slate-800 leading-none tracking-tight">-</span>
+                <span id="badge-sensor-status" class="bg-blue-600 text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase my-1.5">NORMAL</span>
+                <span class="text-[10px] text-slate-400 font-bold">Setpoint: <span id="lbl-sp-gauge">--</span>°C</span>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- CARDS DE STATUS -->
-        <div class="col-span-12 lg:col-span-6 space-y-4">
-          <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
-            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase">REDE ELÉTRICA</span>
-              <div id="status-rede" class="my-1 sm:my-2 font-black text-xs text-slate-400">DESCONHECIDO</div>
+          <!-- PARÂMETROS E CONTROLE DE SETPOINT -->
+          <div class="md:col-span-7 space-y-3.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 block">Temp. Mínima Normal</span>
+                  <span class="text-sm font-black text-slate-700">10.0 °C</span>
+                </div>
+                <span class="text-blue-500 font-black text-lg">❄</span>
+              </div>
+
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 block">Temp. Máxima Normal</span>
+                  <span class="text-sm font-black text-slate-700">16.0 °C</span>
+                </div>
+                <span class="text-blue-500 font-black text-lg">❄</span>
+              </div>
             </div>
 
-            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase leading-tight">FORA DA FAIXA</span>
-              <div id="val-fora-faixa" class="my-1 font-black text-[11px] sm:text-xs text-slate-800">00h 00m 00s</div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 block">Limite Fora da Faixa</span>
+                <span class="text-xs font-extrabold text-slate-700">Até <span id="lbl-tol-degelo">5</span> min</span>
+              </div>
+              <span class="text-slate-400 font-black text-base">⏱</span>
+            </div>
+
+            <!-- CONTROLE DE SETPOINT COM BOTÃO CONFIRMAR -->
+            <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-100 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-black text-blue-900 uppercase">Ajuste de Setpoint</p>
+                  <p id="display-setpoint" class="text-xl font-black text-blue-700">-- °C</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button onclick="ajustarSetpointLocal(-0.5)" class="w-9 h-9 bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg font-black text-lg shadow-sm active:scale-95 transition-all flex items-center justify-center">-</button>
+                  <button onclick="ajustarSetpointLocal(0.5)" class="w-9 h-9 bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg font-black text-lg shadow-sm active:scale-95 transition-all flex items-center justify-center">+</button>
+                </div>
+              </div>
+
+              <button id="btn-confirmar-setpoint" onclick="confirmarEnviarSetpoint()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-lg shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>CONFIRMAR SETPOINT</span>
+              </button>
             </div>
           </div>
 
-          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-              <span class="text-blue-600 font-black">:</span> SELETORA LOCAL / REMOTO
-            </h3>
-            <div id="card-modo-operacao" class="p-3 rounded-lg border bg-slate-50 text-xs flex justify-between items-center font-bold">
-              <span>Modo de Controle:</span>
-              <span id="val-modo-operacao" class="text-blue-600">REMOTO</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      <!-- TREND ENQUADRADA -->
-      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-sm">
-        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-2">
-          TREND DE TEMPERATURA 
-          <span class="flex h-2 w-2 relative">
+      <!-- TREND DE TEMPERATURA ENQUADRADA -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-2">
+          <span>📈</span> TENDÊNCIA DA TEMPERATURA
+          <span class="flex h-2 w-2 relative ml-auto">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
         </h3>
-        <div class="h-48 sm:h-64 w-full relative">
+        <div class="h-48 sm:h-60 w-full relative">
           <canvas id="chartTemperatura"></canvas>
         </div>
       </div>
+
+      <!-- CARDS DE STATUS DO SISTEMA -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">REDE ELÉTRICA</span>
+            <span class="text-slate-400 text-sm">⚡</span>
+          </div>
+          <div id="status-rede" class="font-black text-sm text-slate-400">DESCONHECIDO</div>
+          <span class="text-[9px] text-slate-400 font-medium mt-1">Tensão: Normal</span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">BATERIA</span>
+            <span class="text-emerald-500 text-sm">🔋</span>
+          </div>
+          <div class="font-black text-sm text-emerald-600">100% <span class="text-[10px] font-bold text-slate-400">Carregada</span></div>
+          <span class="text-[9px] text-slate-400 font-medium mt-1">Autonomia: Até 5 h</span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">FORA DA FAIXA</span>
+            <span class="text-slate-400 text-sm">⏱</span>
+          </div>
+          <div id="val-fora-faixa" class="font-black text-sm text-slate-800">00h 00m 00s</div>
+          <span class="text-[9px] text-slate-400 font-medium mt-1">Lim: 00h 05m</span>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between bg-emerald-50/30">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-slate-500 uppercase">ARDUINO UNO</span>
+            <span class="text-emerald-600 text-sm">📟</span>
+          </div>
+          <div id="card-uno-status" class="font-black text-sm text-emerald-600 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ONLINE
+          </div>
+          <span class="text-[9px] text-slate-400 font-medium mt-1">Conectado</span>
+        </div>
+
+      </div>
+
+      <!-- STATUS DOS EQUIPAMENTOS -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3.5">
+        <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider flex items-center justify-between">
+          <span>⚙️ STATUS DOS EQUIPAMENTOS</span>
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          
+          <!-- COMPRESSOR -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase">COMPRESSOR</span>
+              <span class="text-xs">🗜</span>
+            </div>
+            <div class="text-xs font-black text-slate-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Stand-by (-)
+            </div>
+            <div class="text-[9px] text-slate-400 font-medium">Corrente: - | Temp: -</div>
+          </div>
+
+          <!-- EVAPORADOR -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase">EVAPORADOR</span>
+              <span class="text-xs">🌀</span>
+            </div>
+            <div class="text-xs font-black text-slate-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Stand-by (-)
+            </div>
+            <div class="text-[9px] text-slate-400 font-medium">Serpentina: - | Vent: -</div>
+          </div>
+
+          <!-- PORTA -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase">PORTA</span>
+              <span class="text-xs">🚪</span>
+            </div>
+            <div class="text-xs font-black text-slate-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Stand-by (-)
+            </div>
+            <div class="text-[9px] text-slate-400 font-medium">Sensor: - | Tempo: -</div>
+          </div>
+
+          <!-- DESCONGELAMENTO -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase">DESCONGELAMENTO</span>
+              <span class="text-xs">❄️</span>
+            </div>
+            <div id="status-degelo-txt" class="text-xs font-black text-slate-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Inativo
+            </div>
+            <div id="status-degelo-sub" class="text-[9px] text-slate-400 font-medium">Tempo acumulado: 00h 00m</div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
     <!-- ABA 2: TEMPERATURA E RELATÓRIOS -->
     <div id="aba-temperatura" class="hidden space-y-4 sm:space-y-5">
-      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-sm">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">FILTRO DE PERÍODO E RELATÓRIOS</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end">
           <div>
@@ -186,7 +284,7 @@
         </div>
       </div>
 
-      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-sm">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
         <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">GRÁFICO HISTÓRICO</h3>
         <div class="h-56 sm:h-72 w-full relative">
           <canvas id="chartPeriodo"></canvas>
@@ -196,7 +294,7 @@
 
     <!-- ABA 3: ALARMES -->
     <div id="aba-alarmes" class="hidden space-y-5">
-      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-sm">
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">HISTÓRICO DE ALARMES</h3>
           <button onclick="limparHistoricoAlarmes()" class="text-xs font-bold text-rose-600 hover:text-rose-800 transition-colors bg-rose-50 px-2.5 py-1 rounded-md">Limpar</button>
@@ -219,7 +317,7 @@
     </div>
 
     <!-- ABA 4: CONFIGURAÇÕES -->
-    <div id="aba-configuracoes" class="hidden bg-white p-4 sm:p-6 rounded-xl border border-slate-200/80 shadow-sm space-y-4">
+    <div id="aba-configuracoes" class="hidden bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
       <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">CONFIGURAÇÕES DO SISTEMA</h3>
       <p class="text-xs text-slate-500">Ajuste os parâmetros locais do monitoramento.</p>
       
@@ -256,11 +354,11 @@
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center pt-2 pb-safe z-50 shadow-lg">
     <button onclick="mudarAba('dashboard')" id="btn-dash-mb" class="flex flex-col items-center gap-1 text-blue-500 py-1 px-3">
       <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-      <span class="text-[9px] font-bold">Dashboard</span>
+      <span class="text-[9px] font-bold">Início</span>
     </button>
     <button onclick="mudarAba('temperatura')" id="btn-temp-mb" class="flex flex-col items-center gap-1 text-slate-400 py-1 px-3">
       <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span class="text-[9px] font-bold">Temperatura</span>
+      <span class="text-[9px] font-bold">Gráficos</span>
     </button>
     <button onclick="mudarAba('alarmes')" id="btn-alarm-mb" class="flex flex-col items-center gap-1 text-slate-400 py-1 px-3">
       <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9"/></svg>
@@ -285,7 +383,7 @@
     let tempOffset = parseFloat(localStorage.getItem('tempOffset_adega')) || 0.0;
     let tempoDegeloMinutos = parseInt(localStorage.getItem('tempoDegeloMinutos_adega')) || 5;
 
-    // GERENCIAMENTO UNIFICADO DE SETPOINT (SEM LOCALSTORAGE DIVERGENTE)
+    // GERENCIAMENTO DE SETPOINT
     let setpointAtual = null; 
     let setpointPendente = null; 
     let gravandoSetpoint = false;
@@ -335,7 +433,6 @@
       document.getElementById('lbl-tol-degelo').innerText = tempoDegeloMinutos;
     }
 
-    // ALTERA PRÉVIA DO SETPOINT COM OS BOTÕES + E -
     function ajustarSetpointLocal(delta) {
       let base = (setpointPendente !== null) ? setpointPendente : (setpointAtual !== null ? setpointAtual : 12.0);
       setpointPendente = Math.min(25, Math.max(5, base + delta));
@@ -347,7 +444,6 @@
       btn.innerHTML = `<span>CONFIRMAR (${setpointPendente.toFixed(1)} °C)</span>`;
     }
 
-    // CONFIRMA E SALVA DEFINITIVO NO FIELD 3
     function confirmarEnviarSetpoint() {
       let valorParaSalvar = (setpointPendente !== null) ? setpointPendente : setpointAtual;
       if (valorParaSalvar === null) return;
@@ -524,26 +620,22 @@
           // 2. SELETORA LOCAL / REMOTO (FIELD 6)
           const isModoAuto = (String(ultimoFeed.field6) === "1" || String(ultimoFeed.field6) === "true");
           const badgeSel = document.getElementById('badge-seletora');
-          const txtModo = document.getElementById('val-modo-operacao');
 
           if (isModoAuto) {
             badgeSel.innerText = "SELETORA: AUTOMÁTICO";
             badgeSel.className = "bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold";
-            txtModo.innerText = "REMOTO";
-            txtModo.className = "text-blue-600 font-black";
           } else {
             badgeSel.innerText = "SELETORA: LOCAL";
             badgeSel.className = "bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg text-[10px] font-extrabold animate-pulse";
-            txtModo.innerText = "LOCAL";
-            txtModo.className = "text-amber-600 font-black";
           }
 
-          // 3. LEITURA UNIFICADA E OBRIGATÓRIA DO FIELD 3 (SETPOINT)
+          // 3. LEITURA DE SETPOINT (FIELD 3)
           if (!gravandoSetpoint && setpointPendente === null && ultimoFeed.field3) {
             let sp = parseFloat(ultimoFeed.field3);
             if (!isNaN(sp) && sp > 0) {
               setpointAtual = sp;
               document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
+              document.getElementById('lbl-sp-gauge').innerText = `${setpointAtual.toFixed(1)}`;
             }
           }
 
@@ -579,11 +671,15 @@
       document.getElementById('val-temperatura').innerText = "-";
       const elBadge = document.getElementById('badge-sensor-status');
       elBadge.innerText = "SEM SINAL";
-      elBadge.className = "bg-rose-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1 animate-pulse";
+      elBadge.className = "bg-rose-600 text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase my-1.5 animate-pulse";
 
       const statusRede = document.getElementById('status-rede');
       statusRede.innerText = "INATIVA";
-      statusRede.className = "my-1 sm:my-2 font-black text-xs text-rose-600";
+      statusRede.className = "font-black text-sm text-rose-600";
+
+      const cardUno = document.getElementById('card-uno-status');
+      cardUno.className = "font-black text-sm text-rose-600 flex items-center gap-1.5";
+      cardUno.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> OFFLINE`;
 
       const gauge = document.getElementById('gauge-circle');
       gauge.classList.add('gauge-fill-error');
@@ -599,6 +695,10 @@
       const badgeSys = document.getElementById('badge-sistema');
       badgeSys.className = "bg-emerald-600 text-white px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[10px]";
       badgeSys.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> CONECTADO`;
+
+      const cardUno = document.getElementById('card-uno-status');
+      cardUno.className = "font-black text-sm text-emerald-600 flex items-center gap-1.5";
+      cardUno.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ONLINE`;
 
       if (estadoAlarmeAtivo.conexao) {
         normalizarAlarme("Perda de Conexão com Hardware");
@@ -640,14 +740,14 @@
 
       if (isPowerOk) {
         statusRede.innerText = "ATIVA";
-        statusRede.className = "my-1 sm:my-2 font-black text-xs text-emerald-600";
+        statusRede.className = "font-black text-sm text-emerald-600";
         if (estadoAlarmeAtivo.redeEletrica) {
           normalizarAlarme("Queda na Rede Elétrica");
           estadoAlarmeAtivo.redeEletrica = false;
         }
       } else {
         statusRede.innerText = "INATIVA";
-        statusRede.className = "my-1 sm:my-2 font-black text-xs text-rose-600";
+        statusRede.className = "font-black text-sm text-rose-600";
         if (!estadoAlarmeAtivo.redeEletrica) {
           adicionarAlarme("Queda na Rede Elétrica", "CRÍTICO");
           estadoAlarmeAtivo.redeEletrica = true;
@@ -691,7 +791,7 @@
       if (isFalha || temp === null) {
         elVal.innerText = "-";
         elBadge.innerText = "FALHA SENSOR";
-        elBadge.className = "bg-rose-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1 animate-pulse";
+        elBadge.className = "bg-rose-600 text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase my-1.5 animate-pulse";
         gauge.classList.add('gauge-fill-error');
         gauge.style.strokeDashoffset = 0;
         
@@ -707,7 +807,7 @@
         estadoAlarmeAtivo.falhaSensor = false;
       }
 
-      elVal.innerText = `${temp.toFixed(1)} °C`;
+      elVal.innerText = `${temp.toFixed(1)}°C`;
 
       let pct = Math.max(0, Math.min(1, (temp - 0) / 30));
       gauge.style.strokeDashoffset = 251.2 * (1 - pct);
@@ -716,7 +816,7 @@
 
       if (temp >= 10.0 && temp <= 16.0) {
         elBadge.innerText = "NORMAL";
-        elBadge.className = "bg-blue-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1";
+        elBadge.className = "bg-blue-600 text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase my-1.5";
         
         if (estadoAlarmeAtivo.degeloExcedido) {
           normalizarAlarme(`Fora da Faixa (>${tempoDegeloMinutos} min)`);
@@ -726,7 +826,7 @@
       else {
         if (segundosForaDaFaixa <= limiteSegundos) {
           elBadge.innerText = "FORA DA FAIXA";
-          elBadge.className = "bg-amber-500 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1 animate-pulse";
+          elBadge.className = "bg-amber-500 text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase my-1.5 animate-pulse";
           gauge.classList.add('gauge-fill-degelo');
           
           if (estadoAlarmeAtivo.degeloExcedido) {
@@ -735,7 +835,7 @@
           }
         } else {
           elBadge.innerText = temp > 16.0 ? "TEMP. ALTA" : "TEMP. BAIXA";
-          elBadge.className = "bg-rose-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1 animate-pulse";
+          elBadge.className = "bg-rose-600 text-white text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase my-1.5 animate-pulse";
           gauge.classList.add('gauge-fill-error');
           
           if (!estadoAlarmeAtivo.degeloExcedido) {
@@ -752,15 +852,27 @@
       const segs = String(segundosForaDaFaixa % 60).padStart(2, '0');
       
       const elFora = document.getElementById('val-fora-faixa');
+      const statusDegeloTxt = document.getElementById('status-degelo-txt');
+      const statusDegeloSub = document.getElementById('status-degelo-sub');
+
       elFora.innerText = `${horas}h ${mins}m ${segs}s`;
       
       const limiteSegundos = tempoDegeloMinutos * 60;
       if (segundosForaDaFaixa > limiteSegundos) {
-        elFora.className = "my-1 font-black text-[11px] sm:text-xs text-rose-600 animate-pulse";
+        elFora.className = "font-black text-sm text-rose-600 animate-pulse";
+        statusDegeloTxt.className = "text-xs font-black text-amber-600 flex items-center gap-1 animate-pulse";
+        statusDegeloTxt.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Em Tolerância / Degelo`;
+        statusDegeloSub.innerText = `Tempo acumulado: ${horas}h ${mins}m`;
       } else if (segundosForaDaFaixa > 0) {
-        elFora.className = "my-1 font-black text-[11px] sm:text-xs text-amber-500";
+        elFora.className = "font-black text-sm text-amber-500";
+        statusDegeloTxt.className = "text-xs font-black text-amber-600 flex items-center gap-1 animate-pulse";
+        statusDegeloTxt.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Em Tolerância / Degelo`;
+        statusDegeloSub.innerText = `Tempo acumulado: ${horas}h ${mins}m`;
       } else {
-        elFora.className = "my-1 font-black text-[11px] sm:text-xs text-slate-800";
+        elFora.className = "font-black text-sm text-slate-800";
+        statusDegeloTxt.className = "text-xs font-black text-slate-400 flex items-center gap-1";
+        statusDegeloTxt.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Inativo`;
+        statusDegeloSub.innerText = `Tempo acumulado: 00h 00m`;
       }
     }
 
