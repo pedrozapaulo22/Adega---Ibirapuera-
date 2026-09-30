@@ -29,12 +29,8 @@
     <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm border border-slate-100 space-y-4">
       <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-2xl font-black">!</div>
       <h2 class="text-xl font-black text-slate-800">SISTEMA SUSPENSO</h2>
-      <p class="text-xs text-slate-500 leading-relaxed">
-        O acesso a este painel de monitoramento foi temporariamente suspenso. Entre em contato com o suporte do <strong>REI DO GELO</strong> para regularizar sua assinatura.
-      </p>
-      <a href="https://wa.me/5511999999999?text=Ola,%20gostaria%20de%20regularizar%20meu%20acesso%20ao%20painel" target="_blank" class="block w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg transition-colors">
-        Falar com Suporte (WhatsApp)
-      </a>
+      <p class="text-xs text-slate-500 leading-relaxed">O acesso a este painel foi temporariamente suspenso. Entre em contato com o suporte do <strong>REI DO GELO</strong> para regularizar sua assinatura.</p>
+      <a href="https://wa.me/5511999999999?text=Ola,%20gostaria%20de%20regularizar%20meu%20acesso%20ao%20painel" target="_blank" class="block w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg transition-colors">Falar com Suporte (WhatsApp)</a>
     </div>
   </div>
 
@@ -49,9 +45,7 @@
         <button onclick="mudarAba('configuracoes')" id="btn-config-dt" class="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-left">Configurações</button>
       </nav>
     </div>
-    <div class="text-[10px] font-extrabold text-cyan-400 uppercase leading-tight">
-      CONTROLE E SEGURANÇA PARA O SEU PRODUTO.
-    </div>
+    <div class="text-[10px] font-extrabold text-cyan-400 uppercase leading-tight">CONTROLE E SEGURANÇA PARA O SEU PRODUTO.</div>
   </aside>
 
   <!-- CONTEÚDO PRINCIPAL -->
@@ -65,7 +59,7 @@
         <span class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wide">ADEGA - VINHOS IBIRAPUERA</span>
       </div>
       <div class="flex items-center justify-between sm:justify-end gap-2 text-xs font-bold w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-slate-100 flex-wrap sm:flex-nowrap">
-        <span id="badge-seletora" class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold">SELETORA: AUTO (ESP32)</span>
+        <span id="badge-seletora" class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold">SELETORA: REMOTO (ESP32)</span>
         <span id="badge-sistema" class="bg-rose-600 text-white px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[10px]">
           <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> DESCONECTADO
         </span>
@@ -77,7 +71,7 @@
     <div id="aba-dashboard" class="space-y-4 sm:space-y-5">
       <div class="grid grid-cols-12 gap-4 sm:gap-5">
         
-        <!-- TEMPERATURA ATUAL + CONTROLE DE SETPOINT -->
+        <!-- TEMPERATURA ATUAL + CONTROLE DE SETPOINT (FIELD 3) -->
         <div class="col-span-12 lg:col-span-6 bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-sm">
           <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-1">
             <span class="text-blue-600 font-black">:</span> TEMPERATURA ATUAL
@@ -95,10 +89,10 @@
             </div>
 
             <div class="space-y-3 w-full flex-1">
-              <!-- CONTROLE DO SETPOINT INTERATIVO -->
+              <!-- CONTROLE DO SETPOINT INTERATIVO GRAVADO NO FIELD 3 -->
               <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center justify-between">
                 <div>
-                  <p class="text-[10px] font-black text-blue-900 uppercase">Setpoint da Adega</p>
+                  <p class="text-[10px] font-black text-blue-900 uppercase">Setpoint da Adega (Field 3)</p>
                   <p id="display-setpoint" class="text-lg font-black text-blue-700">12.0 °C</p>
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -123,33 +117,25 @@
 
         <!-- CARDS DE STATUS -->
         <div class="col-span-12 lg:col-span-6 space-y-4">
-          <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
+          <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
             <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase">REDE ELÉTRICA</span>
+              <span class="text-[9px] font-bold text-slate-400 uppercase">REDE ELÉTRICA (FIELD 2)</span>
               <div id="status-rede" class="my-1 sm:my-2 font-black text-xs text-slate-400">DESCONHECIDO</div>
-              <span class="text-[8px] opacity-0 hidden sm:inline">.</span>
             </div>
 
             <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase">COMPRESSOR</span>
-              <div id="status-compressor" class="my-1 sm:my-2 font-black text-xs text-slate-400">DESLIGADO</div>
-              <span class="text-[8px] opacity-0 hidden sm:inline">.</span>
-            </div>
-
-            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-sm text-center flex flex-col justify-between">
-              <span class="text-[9px] font-bold text-slate-400 uppercase leading-tight">FORA DA FAIXA</span>
+              <span class="text-[9px] font-bold text-slate-400 uppercase leading-tight">FORA DA FAIXA (FIELD 4)</span>
               <div id="val-fora-faixa" class="my-1 font-black text-[11px] sm:text-xs text-slate-800">00h 00m 00s</div>
-              <span class="text-[8px] text-slate-400 truncate">Lim: <span id="lbl-lim-degelo">00h 05m</span></span>
             </div>
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
             <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-              <span class="text-blue-600 font-black">:</span> MODO DE OPERAÇÃO (REDUNDÂNCIA)
+              <span class="text-blue-600 font-black">:</span> SELETORA LOCAL / REMOTO (FIELD 6)
             </h3>
             <div id="card-modo-operacao" class="p-3 rounded-lg border bg-slate-50 text-xs flex justify-between items-center font-bold">
-              <span>Status do Painel Físico:</span>
-              <span id="val-modo-operacao" class="text-blue-600">AUTOMÁTICO (ESP32)</span>
+              <span>Modo de Controle:</span>
+              <span id="val-modo-operacao" class="text-blue-600">REMOTO (ESP32)</span>
             </div>
           </div>
         </div>
@@ -280,7 +266,6 @@
   </nav>
 
   <script>
-    // PARAMETROS DINÂMICOS
     const urlParams = new URLSearchParams(window.location.search);
     const channelParam = urlParams.get('channel');
     const keyParam = urlParams.get('key');
@@ -293,7 +278,9 @@
     let tempOffset = parseFloat(localStorage.getItem('tempOffset_adega')) || 0.0;
     let tempoDegeloMinutos = parseInt(localStorage.getItem('tempoDegeloMinutos_adega')) || 5;
 
-    let setpointAtual = 12.0;
+    // Carrega Setpoint do LocalStorage para evitar resete visual ao recarregar a página
+    let setpointAtual = parseFloat(localStorage.getItem('setpoint_adega')) || 12.0;
+
     let timestampInicioForaFaixa = null;
     let segundosForaDaFaixa = 0;
 
@@ -310,6 +297,7 @@
     document.getElementById('input-write-api-key').value = writeApiKey;
     document.getElementById('input-temp-offset').value = tempOffset;
     document.getElementById('input-tempo-degelo').value = tempoDegeloMinutos;
+    document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
 
     let chartTemp = null;
     let chartPeriodo = null;
@@ -343,11 +331,13 @@
 
     function ajustarSetpoint(delta) {
       setpointAtual = Math.min(25, Math.max(5, setpointAtual + delta));
+      localStorage.setItem('setpoint_adega', setpointAtual); // Salva no navegador
       document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
 
-      fetch(`https://api.thingspeak.com/update?api_key=${writeApiKey}&field6=${setpointAtual.toFixed(1)}`)
-        .then(() => console.log('Setpoint sincronizado no ThingSpeak (Field 6)'))
-        .catch(err => console.error('Erro ao atualizar setpoint:', err));
+      // Envia a alteração do Setpoint diretamente para o FIELD 3 do ThingSpeak
+      fetch(`https://api.thingspeak.com/update?api_key=${writeApiKey}&field3=${setpointAtual.toFixed(1)}`)
+        .then(() => console.log('Setpoint sincronizado no Field 3 do ThingSpeak'))
+        .catch(err => console.error('Erro ao atualizar Setpoint:', err));
     }
 
     function salvarConfiguracao() {
@@ -482,7 +472,7 @@
             return;
           }
 
-          // 1. BLOQUEIO DE ASSINATURA (FIELD 5)
+          // 1. BLOQUEIO DE CLIENTE (FIELD 5)
           const statusAssinatura = String(ultimoFeed.field5).trim();
           if (statusAssinatura === "0" || statusAssinatura === "false") {
             document.getElementById('tela-bloqueio').classList.remove('hidden');
@@ -491,8 +481,8 @@
             document.getElementById('tela-bloqueio').classList.add('hidden');
           }
 
-          // 2. CHAVE SELETORA / REDUNDÂNCIA LOCAL (FIELD 3)
-          const isModoLocal = (String(ultimoFeed.field3) === "1" || String(ultimoFeed.field3) === "true");
+          // 2. SELETORA LOCAL / REMOTO (FIELD 6)
+          const isModoLocal = (String(ultimoFeed.field6) === "1" || String(ultimoFeed.field6) === "true");
           const badgeSel = document.getElementById('badge-seletora');
           const txtModo = document.getElementById('val-modo-operacao');
 
@@ -502,26 +492,21 @@
             txtModo.innerText = "LOCAL / PAINEL FÍSICO";
             txtModo.className = "text-amber-600 font-black";
           } else {
-            badgeSel.innerText = "SELETORA: AUTO (ESP32)";
+            badgeSel.innerText = "SELETORA: REMOTO (ESP32)";
             badgeSel.className = "bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-extrabold";
-            txtModo.innerText = "AUTOMÁTICO (ESP32)";
+            txtModo.innerText = "REMOTO (ESP32)";
             txtModo.className = "text-blue-600 font-black";
           }
 
-          // 3. SETPOINT REMOTO (FIELD 6)
-          if (ultimoFeed.field6) {
-            let sp = parseFloat(ultimoFeed.field6);
-            if (!isNaN(sp)) {
+          // 3. SETPOINT TEMPERATURA (FIELD 3)
+          if (ultimoFeed.field3) {
+            let sp = parseFloat(ultimoFeed.field3);
+            if (!isNaN(sp) && sp > 0) {
               setpointAtual = sp;
+              localStorage.setItem('setpoint_adega', setpointAtual);
               document.getElementById('display-setpoint').innerText = `${setpointAtual.toFixed(1)} °C`;
             }
           }
-
-          // 4. COMPRESSOR (FIELD 4)
-          const isCompOn = (String(ultimoFeed.field4) === "1" || String(ultimoFeed.field4) === "true");
-          const stComp = document.getElementById('status-compressor');
-          stComp.innerText = isCompOn ? "LIGADO" : "DESLIGADO";
-          stComp.className = isCompOn ? "my-1 sm:my-2 font-black text-xs text-emerald-600" : "my-1 sm:my-2 font-black text-xs text-slate-400";
 
           const dataCriacaoDado = new Date(ultimoFeed.created_at).getTime();
           const agora = Date.now();
@@ -701,7 +686,7 @@
       } 
       else {
         if (segundosForaDaFaixa <= limiteSegundos) {
-          elBadge.innerText = "FORA DAF AIXA";
+          elBadge.innerText = "FORA DA FAIXA";
           elBadge.className = "bg-amber-500 text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase my-1 animate-pulse";
           gauge.classList.add('gauge-fill-degelo');
           
